@@ -24,6 +24,7 @@
 - [The Problem](#-the-problem)
 - [The Solution](#-the-solution)
 - [Key Features](#-key-features)
+- [Application Screenshots](#-application-screenshots)
 - [Architecture](#-architecture)
 - [Tech Stack](#-tech-stack)
 - [Data Model](#-data-model)
@@ -68,6 +69,109 @@ It is built like a real product, not a hackathon mockup:
 | 🏭 **Multi-Warehouse / Multi-Location** | Stock is tracked per product *per location*, with warehouses grouping locations |
 | 🚫 **Stock-Safe Validation** | Deliveries and transfers are blocked at the source when physical stock is insufficient — inventory can never go negative |
 
+<br/>
+
+## 🖥️ Application Screenshots
+
+Explore the StockSense interface and its core inventory workflows.
+
+### 🔐 Authentication
+
+#### Login
+
+![StockSense Login](<sample outputs/login page.png>)
+
+---
+
+### 📊 Dashboard
+
+The dashboard provides a real-time overview of inventory, stock levels, pending operations, and recent activity.
+
+![StockSense Dashboard](<sample outputs/dashboard.png>)
+
+---
+
+### 🏭 Warehouses
+
+Manage warehouses and organize inventory across different storage locations.
+
+![StockSense Warehouses](<sample outputs/warehouses.png>)
+
+![StockSense Warehouses Overview](<sample outputs/Warehouses2.png>)
+
+---
+
+### 📦 Inventory
+
+View and manage current inventory across products and locations.
+
+![StockSense Inventory](<sample outputs/inventory.png>)
+
+---
+
+### 📥 Receipts
+
+Create and manage incoming inventory receipts.
+
+![StockSense Receipts](<sample outputs/reciepts.png>)
+
+#### New Receipt
+
+![New Receipt](<sample outputs/new reciept.png>)
+
+---
+
+### 📤 Deliveries
+
+Manage outgoing inventory and validate stock availability before delivery.
+
+![StockSense Deliveries](<sample outputs/deliveries.png>)
+
+#### New Delivery
+
+![New Delivery](<sample outputs/new delivery.png>)
+
+---
+
+### 🔄 Internal Transfers
+
+Move inventory between warehouses or storage locations.
+
+![StockSense Internal Transfers](<sample outputs/internal transfer.png>)
+
+#### New Internal Transfer
+
+![New Internal Transfer](<sample outputs/new internal transfer.png>)
+
+---
+
+### ⚖️ Inventory Adjustments
+
+Record and reconcile physical inventory counts.
+
+![New Inventory Adjustment](<sample outputs/new inventory.png>)
+
+---
+
+### 📜 Move History
+
+Review completed inventory movements and stock changes.
+
+![Stock Movement History](<sample outputs/save history.png>)
+
+---
+
+### 👤 Profile
+
+Manage the authenticated user's profile information.
+
+#### My Profile
+
+![My Profile](<sample outputs/my profile.png>)
+
+#### Edit Profile
+
+![Edit Profile](<sample outputs/edit profile.png>)
 <br/>
 
 ## 🏗️ Architecture
