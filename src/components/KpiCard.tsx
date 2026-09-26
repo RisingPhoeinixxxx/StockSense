@@ -1,0 +1,3 @@
+import React from 'react';import {Box,AlertTriangle,CircleX,PackageCheck,Truck,ArrowLeftRight} from 'lucide-react';
+const icons:any={total:Box,low:AlertTriangle,out:CircleX,receipt:PackageCheck,delivery:Truck,transfer:ArrowLeftRight};
+export default function KpiCard({type,title,value,delta,onClick}:{type:string;title:string;value:number;delta?:string;onClick:()=>void}){const Icon=icons[type];return <button className={'kpi '+type} onClick={onClick}><div className="kpi-icon"><Icon size={21}/></div><div className="kpi-copy"><span>{title}</span><strong>{value.toLocaleString()}</strong><small><b>{delta||'Live'}</b>{delta?' vs previous 7 days':' · updating now'}</small></div></button>}
