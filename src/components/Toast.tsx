@@ -1,1 +1,0 @@
-import React,{useEffect} from 'react';export default function Toast({msg,onClose}:{msg:string;onClose:()=>void}){useEffect(()=>{const t=setTimeout(onClose,3200);return()=>clearTimeout(t)},[onClose]);return <div className="toast"><span>✓</span>{msg}</div>}
