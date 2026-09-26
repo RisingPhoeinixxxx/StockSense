@@ -12,13 +12,6 @@
 [![License](https://img.shields.io/badge/License-MIT-e82bd0?style=for-the-badge)](#license)
 
 [**📖 Full Technical Documentation**](https://claude.ai/artifact/TEj1niNTXq1i8XV6ZjibMa) · [Features](#-key-features) · [Architecture](#-architecture) · [Quick Start](#-quick-start) · [Demo Script](#-demo-script-for-judges)
-
-<img src="stocksense_qr.png" alt="Scan for live documentation" width="220"/>
-
-<sub>📱 Scan to open the full documentation site</sub>
-
-</div>
-
 ---
 
 ## 🧭 Overview
