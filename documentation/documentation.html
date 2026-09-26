@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>StockSense — Technical Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<style>
+
+/* ============ Design tokens ============ */
+:root{
+  --bg:#f6f7fb;
+  --bg-alt:#ffffff;
+  --surface:#ffffff;
+  --surface-2:#f0f2f8;
+  --border:#e1e5f0;
+  --text:#161a2b;
+  --text-dim:#5a6478;
+  --text-faint:#8891a5;
+  --accent-pink:#d6188f;
+  --accent-blue:#1163c9;
+  --accent-purple:#6b31d6;
+  --accent-teal:#0d9488;
+  --accent-amber:#b06a00;
+  --accent-red:#d6154f;
+  --grad-brand: linear-gradient(100deg,#e0219f,#6b31d6);
+  --code-bg:#eef0f7;
+  --shadow: 0 10px 34px rgba(20,26,50,.08);
+  --radius: 14px;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#050916;
+    --bg-alt:#070d1c;
+    --surface:#0a1526;
+    --surface-2:#0d1a2e;
+    --border:#1c2c47;
+    --text:#eef1fa;
+    --text-dim:#a7b1c6;
+    --text-faint:#748099;
+    --accent-pink:#ff4ab8;
+    --accent-blue:#3fa9ff;
+    --accent-purple:#a879ff;
+    --accent-teal:#2fe0c0;
+    --accent-amber:#ffb648;
+    --accent-red:#ff5c85;
+    --grad-brand: linear-gradient(100deg,#ff2fa9,#7242ff);
+    --code-bg:#0c1930;
+    --shadow: 0 18px 50px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#050916;
+  --bg-alt:#070d1c;
+  --surface:#0a1526;
+  --surface-2:#0d1a2e;
+  --border:#1c2c47;
+  --text:#eef1fa;
+  --text-dim:#a7b1c6;
+  --text-faint:#748099;
+  --accent-pink:#ff4ab8;
+  --accent-blue:#3fa9ff;
+  --accent-purple:#a879ff;
+  --accent-teal:#2fe0c0;
+  --accent-amber:#ffb648;
+  --accent-red:#ff5c85;
+  --grad-brand: linear-gradient(100deg,#ff2fa9,#7242ff);
+  --code-bg:#0c1930;
+  --shadow: 0 18px 50px rgba(0,0,0,.45);
+}
+
+*{box-sizing:border-box;}
+html{scroll-padding-top:calc(78px + env(safe-area-inset-top,0px));}
+body{
+  margin:0;
+  font-family:var(--font-body);
+  background:var(--bg);
+  color:var(--text);
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent-blue);}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px;}
+
+/* ============ Top bar ============ */
+.topbar{
+  position:sticky; top:0; z-index:40;
+  padding-top:env(safe-area-inset-top,0px);
+  display:flex; align-items:center; gap:14px;
+  height:66px; padding-inline:22px;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.topbar .mark{
+  width:30px;height:30px;border-radius:9px;flex:none;
+  background:var(--grad-brand);
+  display:grid;place-items:center;color:#fff;font-weight:800;font-size:14px;
+  box-shadow:0 6px 18px rgba(214,24,159,.28);
+}
+.topbar .name{font-weight:800;font-size:15px;letter-spacing:-.2px;}
+.topbar .tag{font-size:10.5px;color:var(--text-faint);border:1px solid var(--border);padding:3px 9px;border-radius:99px;margin-left:2px;}
+.topbar .spacer{flex:1;}
+.topbar .meta{font-size:11px;color:var(--text-faint);text-align:right;line-height:1.4;display:none;}
+@media(min-width:760px){.topbar .meta{display:block;}}
+
+/* ============ Layout ============ */
+.shell{display:flex; max-width:1400px; margin:0 auto;}
+.toc{
+  width:272px; flex:none; position:sticky;
+  top:66px; align-self:flex-start;
+  height:calc(100vh - 66px);
+  overflow-y:auto;
+  padding:26px 14px 40px 22px;
+  border-right:1px solid var(--border);
+  scrollbar-width: thin;
+}
+.toc-title{font-size:10.5px; text-transform:uppercase; letter-spacing:1.4px; color:var(--text-faint); font-weight:700; margin:0 0 12px 8px;}
+.toc a{
+  display:block; padding:7px 9px; margin:1px 0; border-radius:8px;
+  font-size:12.5px; color:var(--text-dim); text-decoration:none; font-weight:500;
+  border-left:2px solid transparent;
+}
+.toc a:hover{background:var(--surface-2); color:var(--text);}
+.toc a.l2{padding-left:20px; font-size:11.8px; color:var(--text-faint);}
+.toc-group{margin-top:14px;}
+@media(max-width:980px){ .toc{display:none;} }
+
+.content{flex:1; min-width:0; padding:0 26px 90px;}
+.doc-inner{max-width:840px; margin:0 auto;}
+
+/* ============ Cover ============ */
+.cover{
+  padding:64px 0 40px; text-align:left; border-bottom:1px solid var(--border); margin-bottom:44px;
+}
+.cover .eyebrow{
+  font-size:11px; font-weight:800; letter-spacing:2.2px; text-transform:uppercase;
+  color:var(--accent-pink); margin:0 0 14px;
+}
+.cover h1{
+  font-size:clamp(32px,5vw,50px); line-height:1.04; letter-spacing:-1.6px; margin:0 0 16px; font-weight:800;
+}
+.cover h1 span{
+  background:var(--grad-brand); -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.cover p.lead{font-size:15.5px; color:var(--text-dim); max-width:620px; line-height:1.6; margin:0 0 26px;}
+.cover-meta{display:flex; flex-wrap:wrap; gap:10px;}
+.pill{
+  font-size:11.5px; font-weight:600; padding:7px 13px; border-radius:99px;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--text-dim);
+  display:flex; align-items:center; gap:6px;
+}
+.pill b{color:var(--text);}
+.pill i{width:6px;height:6px;border-radius:50%;background:var(--accent-teal);display:inline-block;}
+
+/* ============ Sections ============ */
+section.doc-section{margin:0 0 56px; scroll-margin-top:20px;}
+.sec-eyebrow{font-size:10.5px; font-weight:800; letter-spacing:1.8px; text-transform:uppercase; color:var(--accent-purple); margin:0 0 8px;}
+h2{font-size:26px; letter-spacing:-.6px; margin:0 0 6px; font-weight:800;}
+h3{font-size:18px; letter-spacing:-.3px; margin:34px 0 12px; font-weight:700;}
+h4{font-size:14.5px; margin:22px 0 8px; font-weight:700; color:var(--text);}
+p{line-height:1.7; color:var(--text-dim); font-size:14.5px;}
+.sec-intro{font-size:15px; color:var(--text-dim); line-height:1.7; margin-bottom:22px; max-width:700px;}
+ul,ol{color:var(--text-dim); line-height:1.75; font-size:14.5px; padding-left:22px;}
+li{margin:4px 0;}
+li b, li strong{color:var(--text);}
+code{
+  font-family:var(--font-mono); background:var(--code-bg); color:var(--accent-pink);
+  padding:2px 6px; border-radius:5px; font-size:12.5px;
+}
+pre{
+  background:var(--code-bg); border:1px solid var(--border); border-radius:10px;
+  padding:16px 18px; overflow-x:auto; font-family:var(--font-mono); font-size:12.3px;
+  line-height:1.6; color:var(--text);
+}
+pre code{background:none; padding:0; color:inherit;}
+
+/* ============ Callouts ============ */
+.callout{
+  border:1px solid var(--border); border-left:3px solid var(--accent-blue);
+  background:var(--surface-2); border-radius:10px; padding:14px 16px; margin:18px 0;
+  font-size:13.5px; color:var(--text-dim); line-height:1.65;
+}
+.callout.warn{border-left-color:var(--accent-amber);}
+.callout.danger{border-left-color:var(--accent-red);}
+.callout b{color:var(--text);}
+.callout .co-label{display:block; font-size:10.5px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase; margin-bottom:5px; color:var(--accent-blue);}
+.callout.warn .co-label{color:var(--accent-amber);}
+.callout.danger .co-label{color:var(--accent-red);}
+
+/* ============ Diagram card ============ */
+.diagram{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:20px; margin:20px 0 28px; box-shadow:var(--shadow); overflow-x:auto;
+}
+.diagram .dtitle{font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1.1px; color:var(--text-faint); margin:0 0 12px;}
+.diagram .mermaid{display:flex; justify-content:center;}
+
+/* ============ Tables ============ */
+.tbl-wrap{overflow-x:auto; border:1px solid var(--border); border-radius:12px; margin:18px 0 26px; background:var(--surface);}
+table{width:100%; border-collapse:collapse; min-width:560px;}
+th{
+  background:var(--surface-2); text-align:left; font-size:10.5px; text-transform:uppercase;
+  letter-spacing:.6px; color:var(--text-faint); padding:11px 14px; border-bottom:1px solid var(--border);
+  font-weight:700;
+}
+td{padding:11px 14px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text-dim); vertical-align:top;}
+tr:last-child td{border-bottom:0;}
+td b, td strong{color:var(--text);}
+td code{white-space:nowrap;}
+
+/* ============ Module cards ============ */
+.grid-cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:12px; margin:20px 0 28px;}
+.mcard{
+  background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px;
+}
+.mcard .micon{
+  width:34px;height:34px;border-radius:9px; display:grid; place-items:center; margin-bottom:10px;
+  background:var(--grad-brand); color:#fff; font-size:15px; font-weight:800;
+}
+.mcard h4{margin:0 0 6px; font-size:13.5px;}
+.mcard p{font-size:12.5px; margin:0; line-height:1.55;}
+
+/* ============ Badges ============ */
+.badge{display:inline-block; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:6px; margin:0 4px 4px 0;}
+.badge.draft{background:color-mix(in srgb, var(--text-faint) 18%, transparent); color:var(--text-dim);}
+.badge.waiting{background:color-mix(in srgb, var(--accent-amber) 20%, transparent); color:var(--accent-amber);}
+.badge.ready{background:color-mix(in srgb, var(--accent-blue) 18%, transparent); color:var(--accent-blue);}
+.badge.done{background:color-mix(in srgb, var(--accent-teal) 20%, transparent); color:var(--accent-teal);}
+.badge.canceled{background:color-mix(in srgb, var(--accent-red) 18%, transparent); color:var(--accent-red);}
+
+/* ============ file tree ============ */
+.tree{font-family:var(--font-mono); font-size:12.3px; line-height:1.85; color:var(--text-dim); background:var(--code-bg); border:1px solid var(--border); border-radius:10px; padding:16px 18px; overflow-x:auto;}
+.tree .dir{color:var(--accent-blue); font-weight:600;}
+.tree .file{color:var(--text);}
+.tree .cm{color:var(--text-faint);}
+
+/* ============ footer ============ */
+footer{border-top:1px solid var(--border); padding:34px 0 10px; margin-top:20px; text-align:center;}
+footer p{font-size:12px; color:var(--text-faint);}
+
+.kbd{font-family:var(--font-mono); background:var(--surface-2); border:1px solid var(--border); border-radius:5px; padding:1px 6px; font-size:11.5px;}
+
+.two-col{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+@media(max-width:640px){.two-col{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="mark">S</div>
+  <div class="name">StockSense</div>
+  <div class="tag">Technical Documentation</div>
+  <div class="spacer"></div>
+  <div class="meta">Version 1.0.0 · Inventory Management System<br/>Vite + React + TypeScript + Supabase</div>
+</div>
+
+<div class="shell">
+  <nav class="toc">
+    <div class="toc-title">Contents</div>
+    <a href="#overview">1. Executive Overview</a>
+    <a href="#architecture">2. System Architecture</a>
+    <a href="#techstack">3. Technology Stack</a>
+    <a href="#structure">4. Project Structure</a>
+    <a href="#datamodel">5. Data Model</a>
+    <a href="#auth">6. Authentication &amp; Sessions</a>
+    <a href="#modules">7. Application Modules</a>
+    <a href="#operations">8. Inventory Operations Engine</a>
+    <a href="#operations" class="l2">8.1 Lifecycle States</a>
+    <a href="#op-receipt" class="l2">8.2 Receipts</a>
+    <a href="#op-delivery" class="l2">8.3 Deliveries</a>
+    <a href="#op-transfer" class="l2">8.4 Internal Transfers</a>
+    <a href="#op-adjustment" class="l2">8.5 Adjustments</a>
+    <a href="#state">9. State Management &amp; Sync</a>
+    <a href="#database">10. Database Schema &amp; Security</a>
+    <a href="#deployment">11. Setup &amp; Deployment</a>
+    <a href="#security">12. Security Considerations</a>
+    <a href="#roadmap">13. Known Limitations &amp; Roadmap</a>
+  </nav>
+
+  <main class="content">
+    <div class="doc-inner">
+
+      <div class="cover">
+        <p class="eyebrow">Internal Engineering Documentation</p>
+        <h1>StockSense <span>Inventory Management System</span></h1>
+        <p class="lead">A production-oriented, real-time, multi-user inventory management platform built on Vite, React, TypeScript and Supabase — covering product catalogues, warehouses, stock movements, and a fully audited operations ledger.</p>
+        <div class="cover-meta">
+          <span class="pill"><i></i> Status: <b>Active</b></span>
+          <span class="pill">Version <b>1.0.0</b></span>
+          <span class="pill">Frontend: <b>React 18 + Vite</b></span>
+          <span class="pill">Backend: <b>Supabase (Postgres · Auth · Realtime)</b></span>
+        </div>
+      </div>
+
+      <!-- 1. OVERVIEW -->
+      <section class="doc-section" id="overview">
+        <p class="sec-eyebrow">Section 01</p>
+        <h2>Executive Overview</h2>
+        <p class="sec-intro">StockSense is a single-page inventory management application designed for a small-to-mid-size operation running one or more warehouses. It replaces spreadsheet-based stock tracking with a live, shared, multi-user workspace where every stock movement is validated through a formal operation (Receipt, Delivery, Internal Transfer, or Adjustment) and permanently recorded in an append-only ledger.</p>
+
+        <div class="grid-cards">
+          <div class="mcard"><div class="micon">01</div><h4>Real Authentication</h4><p>Backed entirely by Supabase Auth — email/password sign-up, sign-in, and secure password recovery. No demo or fallback login path exists.</p></div>
+          <div class="mcard"><div class="micon">02</div><h4>Shared Live Workspace</h4><p>All authenticated users read and write one shared inventory workspace (<code>app_states.id = 'default'</code>), synchronized instantly via Supabase Realtime.</p></div>
+          <div class="mcard"><div class="micon">03</div><h4>Private Profiles</h4><p>Each user has a private profile row protected by Postgres Row-Level Security — one user can never read or modify another's profile.</p></div>
+          <div class="mcard"><div class="micon">04</div><h4>Auditable Ledger</h4><p>Every completed operation writes an immutable entry to a stock ledger: what moved, from where, to where, how much, and who performed it.</p></div>
+        </div>
+
+        <div class="callout">
+          <span class="co-label">Who this document is for</span>
+          Engineers onboarding onto the codebase, reviewers auditing the data flow and security model, and operators planning a Supabase deployment.
+        </div>
+      </section>
+
+      <!-- 2. ARCHITECTURE -->
+      <section class="doc-section" id="architecture">
+        <p class="sec-eyebrow">Section 02</p>
+        <h2>System Architecture</h2>
+        <p class="sec-intro">StockSense is a client-heavy single-page application. There is no custom backend server — Supabase serves as the entire backend surface: authentication, relational storage, row-level security enforcement, and realtime change propagation.</p>
+
+        <div class="diagram">
+          <p class="dtitle">Figure 2.1 — High-Level Architecture</p>
+          <pre class="mermaid">
+flowchart TB
+    subgraph CLIENT["Browser Client — React 18 + Vite + TypeScript"]
+        UI["UI Layer<br/>Pages · Components"]
+        LSTORE["Local Store<br/>(src/lib/store.ts)<br/>localStorage cache"]
+        CSTORE["Cloud Store Adapter<br/>(src/lib/cloudStore.ts)"]
+    end
+    subgraph SUPABASE["Supabase Backend"]
+        AUTH["Supabase Auth<br/>email + password, recovery"]
+        PG[("Postgres Database<br/>profiles · app_states")]
+        RLS["Row-Level Security<br/>Policies"]
+        RT["Realtime Engine<br/>postgres_changes"]
+    end
+    UI --> LSTORE
+    UI --> CSTORE
+    CSTORE -- "session, sign in/up" --> AUTH
+    CSTORE -- "select / upsert" --> PG
+    PG --- RLS
+    AUTH --> PG
+    PG -- "change events" --> RT
+    RT -- "broadcast" --> CSTORE
+    CSTORE -- "setState(next)" --> UI
+          </pre>
+        </div>
+
+        <h3>Design Principles</h3>
+        <ul>
+          <li><b>Client-authoritative UI, server-authoritative truth.</b> The UI updates optimistically from local state, but the shared workspace row in Postgres is the single source of truth once a user is authenticated.</li>
+          <li><b>Offline-tolerant caching.</b> Application state is mirrored to <code>localStorage</code> per user ID, so the dashboard renders instantly on reload before the cloud round-trip completes.</li>
+          <li><b>No custom API layer.</b> All reads/writes go directly from the browser to Supabase using the anonymous (publishable) key; authorization is enforced entirely by Postgres RLS policies, not application code.</li>
+          <li><b>Eventual consistency via Realtime.</b> Concurrent users converge on the same state through Postgres change events rather than polling.</li>
+        </ul>
+      </section>
+
+      <!-- 3. TECH STACK -->
+      <section class="doc-section" id="techstack">
+        <p class="sec-eyebrow">Section 03</p>
+        <h2>Technology Stack</h2>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+            <tr><td>Build tool</td><td><code>vite</code></td><td>Dev server + production bundling; injects <code>VITE_*</code> env vars at build time</td></tr>
+            <tr><td>UI Framework</td><td><code>react</code>, <code>react-dom</code></td><td>Component-based single-page application</td></tr>
+            <tr><td>Language</td><td><code>typescript</code></td><td>Static typing for domain models (<code>src/lib/types.ts</code>)</td></tr>
+            <tr><td>Backend-as-a-Service</td><td><code>@supabase/supabase-js</code></td><td>Auth, Postgres access, and Realtime subscriptions</td></tr>
+            <tr><td>Charts</td><td><code>recharts</code></td><td>Dashboard bar chart (movement) and donut chart (category split)</td></tr>
+            <tr><td>Icons</td><td><code>lucide-react</code></td><td>Iconography across sidebar, topbar, and tables</td></tr>
+            <tr><td>Styling</td><td>Hand-written CSS (<code>src/styles.css</code>)</td><td>Dark, gradient-accented design system with a light-mode override</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- 4. PROJECT STRUCTURE -->
+      <section class="doc-section" id="structure">
+        <p class="sec-eyebrow">Section 04</p>
+        <h2>Project Structure</h2>
+        <div class="tree">
+<span class="dir">StockSense/</span>
+├── <span class="file">index.html</span>
+├── <span class="file">vite.config.ts</span>
+├── <span class="file">package.json</span>
+├── <span class="dir">supabase/</span>
+│   └── <span class="file">schema.sql</span>          <span class="cm">// tables, RLS policies, triggers</span>
+├── <span class="dir">src/</span>
+│   ├── <span class="file">main.tsx</span>             <span class="cm">// React root mount</span>
+│   ├── <span class="file">App.tsx</span>              <span class="cm">// auth gate, routing, cloud sync effects</span>
+│   ├── <span class="file">styles.css</span>
+│   ├── <span class="dir">lib/</span>
+│   │   ├── <span class="file">types.ts</span>          <span class="cm">// domain model interfaces</span>
+│   │   ├── <span class="file">store.ts</span>          <span class="cm">// seed data + localStorage persistence</span>
+│   │   ├── <span class="file">cloudStore.ts</span>     <span class="cm">// Supabase reads/writes/subscriptions</span>
+│   │   └── <span class="file">supabase.ts</span>       <span class="cm">// Supabase client + env validation</span>
+│   ├── <span class="dir">components/</span>
+│   │   ├── <span class="file">Sidebar.tsx</span> <span class="file">Topbar.tsx</span> <span class="file">Table.tsx</span>
+│   │   ├── <span class="file">Modal.tsx</span> <span class="file">Toast.tsx</span> <span class="file">StatusBadge.tsx</span>
+│   │   ├── <span class="file">KpiCard.tsx</span> <span class="file">Logo.tsx</span>
+│   └── <span class="dir">pages/</span>
+│       ├── <span class="file">Auth.tsx</span>          <span class="cm">// login / signup / password recovery</span>
+│       ├── <span class="file">Dashboard.tsx</span>     <span class="cm">// KPIs + charts + recent activity</span>
+│       └── <span class="file">Pages.tsx</span>          <span class="cm">// Products, Stock, Receipts, Deliveries,</span>
+│                                <span class="cm">// Transfers, Adjustments, History,</span>
+│                                <span class="cm">// Warehouses, Locations, Profile</span>
+├── <span class="file">SUPABASE_SETUP.md</span>
+└── <span class="file">DEPLOYMENT_FIX.md</span>
+        </div>
+      </section>
+
+      <!-- 5. DATA MODEL -->
+      <section class="doc-section" id="datamodel">
+        <p class="sec-eyebrow">Section 05</p>
+        <h2>Data Model</h2>
+        <p class="sec-intro">All domain types are declared in <code>src/lib/types.ts</code>. The application state is one aggregate object (<code>AppState</code>) holding every collection — this entire object is what gets serialized into the shared <code>app_states.state</code> JSONB column.</p>
+
+        <div class="diagram">
+          <p class="dtitle">Figure 5.1 — Entity Relationships</p>
+          <pre class="mermaid">
+erDiagram
+    WAREHOUSE ||--o{ LOCATION : contains
+    LOCATION ||--o{ INVENTORY : holds
+    PRODUCT ||--o{ INVENTORY : "stocked as"
+    PRODUCT ||--o{ RECEIPT_LINE : "received as"
+    RECEIPT ||--o{ RECEIPT_LINE : has
+    PRODUCT ||--o{ DELIVERY_LINE : "shipped as"
+    DELIVERY ||--o{ DELIVERY_LINE : has
+    PRODUCT ||--o{ TRANSFER : "moved as"
+    LOCATION ||--o{ TRANSFER : "source / destination"
+    PRODUCT ||--o{ ADJUSTMENT : "recounted as"
+    PRODUCT ||--o{ LEDGER_ENTRY : "logged as"
+    PROFILE ||--o{ LEDGER_ENTRY : performs
+
+    PRODUCT {
+        string id
+        string name
+        string sku
+        string category
+        string uom
+        number reorder
+    }
+    WAREHOUSE {
+        string id
+        string name
+        string code
+        string address
+    }
+    LOCATION {
+        string id
+        string name
+        string code
+        string warehouseId
+    }
+    INVENTORY {
+        string id
+        string productId
+        string locationId
+        number quantity
+    }
+    RECEIPT {
+        string id
+        string number
+        string supplier
+        string status
+    }
+    DELIVERY {
+        string id
+        string number
+        string customer
+        string status
+    }
+    TRANSFER {
+        string id
+        string number
+        number quantity
+        string status
+    }
+    ADJUSTMENT {
+        string id
+        string number
+        number recorded
+        number counted
+        string status
+    }
+    LEDGER_ENTRY {
+        string id
+        string timestamp
+        string operation
+        number quantity
+        string user
+    }
+    PROFILE {
+        string id
+        string full_name
+        string email
+        string role
+    }
+          </pre>
+        </div>
+
+        <h3>Core Types</h3>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Type</th><th>Fields</th><th>Notes</th></tr>
+            <tr><td><code>Status</code></td><td><code>Draft | Waiting | Ready | Done | Canceled</code></td><td>Shared lifecycle state used by Receipts, Deliveries, Transfers, and Adjustments</td></tr>
+            <tr><td><code>Operation</code></td><td><code>Receipt | Delivery | Internal Transfer | Adjustment</code></td><td>Discriminator on ledger entries</td></tr>
+            <tr><td><code>Product</code></td><td>id, name, sku, category, uom, reorder</td><td><code>reorder</code> drives low-stock alerts on the dashboard and Stock page</td></tr>
+            <tr><td><code>Inventory</code></td><td>id, productId, locationId, quantity</td><td>One row per product/location pair; the on-hand quantity primitive</td></tr>
+            <tr><td><code>LedgerEntry</code></td><td>id, timestamp, reference, productId, operation, source, destination, quantity, user, status</td><td>Written only by the <code>complete*()</code> functions — never edited afterward</td></tr>
+            <tr><td><code>AppState</code></td><td>products, warehouses, locations, inventory, receipts, deliveries, transfers, adjustments, ledger</td><td>The single object persisted locally and to <code>app_states.state</code></td></tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- 6. AUTH -->
+      <section class="doc-section" id="auth">
+        <p class="sec-eyebrow">Section 06</p>
+        <h2>Authentication &amp; Session Flow</h2>
+        <p class="sec-intro">Authentication is handled exclusively by Supabase Auth (<code>src/pages/Auth.tsx</code>). There is no local or demo credential path — if Supabase environment variables are missing, every auth action fails with an explicit configuration error rather than silently granting access.</p>
+
+        <div class="diagram">
+          <p class="dtitle">Figure 6.1 — Session Bootstrap &amp; Auth Flow</p>
+          <pre class="mermaid">
+flowchart TD
+    A[App loads] --> B{"Supabase configured?"}
+    B -- No --> Z["Loading skipped —<br/>Auth screen shows config error on submit"]
+    B -- Yes --> C["supabase.auth.getSession()"]
+    C --> D{"Session exists?"}
+    D -- Yes --> E["ensureProfile(userId)<br/>fetch or create profile row"]
+    D -- No --> F["Show Auth screen"]
+    F --> G{"Mode selected"}
+    G -- Login --> H["signInWithPassword(email, password)"]
+    G -- "Sign Up" --> I["signUp(email, password, full_name)"]
+    G -- "Forgot Password" --> J["resetPasswordForEmail(email)"]
+    H -- success --> E
+    I -- "email confirmed" --> H
+    J --> K["User opens emailed recovery link"]
+    K --> L["onAuthStateChange: PASSWORD_RECOVERY"]
+    L --> M["updateUser({ password })"]
+    M --> E
+    E --> N["Render authenticated app shell"]
+          </pre>
+        </div>
+
+        <h3>Password Recovery Detail</h3>
+        <p>When Supabase redirects the user back with a recovery token in the URL hash, <code>App.tsx</code> detects <code>type=recovery</code> on mount and forces the Auth component into <code>forgot</code> mode with <code>recoveryMode</code> set — presenting a "Set New Password" form instead of the usual reset-request form.</p>
+
+        <div class="callout warn">
+          <span class="co-label">Configuration requirement</span>
+          The exact origins used locally and in production (e.g. <code>http://localhost:5173</code> and the production domain) must be registered under <b>Authentication → URL Configuration</b> in the Supabase dashboard, or recovery links will fail to redirect correctly.
+        </div>
+      </section>
+
+      <!-- 7. MODULES -->
+      <section class="doc-section" id="modules">
+        <p class="sec-eyebrow">Section 07</p>
+        <h2>Application Modules</h2>
+        <p class="sec-intro">Once authenticated, the app shell (<code>Sidebar</code> + <code>Topbar</code> + routed page) exposes eleven functional areas, all operating on the single shared <code>AppState</code> object.</p>
+
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Module</th><th>Route key</th><th>Responsibility</th></tr>
+            <tr><td><b>Dashboard</b></td><td><code>dashboard</code></td><td>KPI cards (total stock, low/out-of-stock counts, pending ops), 14-day movement bar chart, category donut chart, low-stock alerts, recent ledger activity</td></tr>
+            <tr><td><b>Products</b></td><td><code>products</code></td><td>Product catalogue — create/edit product, category, UOM and reorder level; shows computed on-hand quantity</td></tr>
+            <tr><td><b>Stock</b></td><td><code>stock</code></td><td>Live per-location stock view with low/out-of-stock filters</td></tr>
+            <tr><td><b>Receipts</b></td><td><code>receipts</code></td><td>Incoming goods from suppliers; create and validate receipts</td></tr>
+            <tr><td><b>Deliveries</b></td><td><code>deliveries</code></td><td>Outgoing goods to customers; validated against available stock</td></tr>
+            <tr><td><b>Internal Transfers</b></td><td><code>transfers</code></td><td>Move stock between locations/warehouses without changing total stock</td></tr>
+            <tr><td><b>Inventory Adjustments</b></td><td><code>adjustments</code></td><td>Reconcile recorded quantity against a physical count, with a reason code</td></tr>
+            <tr><td><b>Move History</b></td><td><code>history</code></td><td>Read-only, searchable view of the full stock ledger</td></tr>
+            <tr><td><b>Warehouses</b></td><td><code>warehouses</code></td><td>Manage physical warehouse facilities</td></tr>
+            <tr><td><b>Locations</b></td><td><code>locations</code></td><td>Manage storage locations, each tied to one warehouse</td></tr>
+            <tr><td><b>Profile</b></td><td><code>profile</code></td><td>Edit the signed-in user's private profile (name, phone, avatar)</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- 8. OPERATIONS ENGINE -->
+      <section class="doc-section" id="operations">
+        <p class="sec-eyebrow">Section 08</p>
+        <h2>Inventory Operations Engine</h2>
+        <p class="sec-intro">All stock-affecting logic lives in a small set of pure-ish functions in <code>src/pages/Pages.tsx</code>: <code>completeReceipt</code>, <code>completeDelivery</code>, <code>completeTransfer</code>, and <code>completeAdjustment</code>. Each mutates a cloned draft of <code>AppState</code> (via <code>structuredClone</code>), applies inventory deltas, appends one or more ledger entries, and flips the document's status to <code>Done</code>.</p>
+
+        <h3 id="lifecycle">8.1 Lifecycle States</h3>
+        <p>
+          <span class="badge draft">Draft</span>
+          <span class="badge waiting">Waiting</span>
+          <span class="badge ready">Ready</span>
+          <span class="badge done">Done</span>
+          <span class="badge canceled">Canceled</span>
+        </p>
+        <div class="diagram">
+          <p class="dtitle">Figure 8.1 — Shared Document Lifecycle</p>
+          <pre class="mermaid">
+stateDiagram-v2
+    [*] --> Draft
+    Draft --> Waiting
+    Waiting --> Ready
+    Ready --> Done
+    Waiting --> Canceled
+    Ready --> Canceled
+    Done --> [*]
+    Canceled --> [*]
+          </pre>
+        </div>
+        <p>In practice, most documents are created directly in <code>Waiting</code> or <code>Ready</code> and move to <code>Done</code> the moment a user clicks <b>Validate</b> / <b>Apply</b> — <code>Draft</code> and <code>Canceled</code> are modeled in the type system but not yet wired to UI actions.</p>
+
+        <h3 id="op-receipt">8.2 Receipts — Incoming Stock</h3>
+        <div class="diagram">
+          <p class="dtitle">Figure 8.2 — Receipt Validation Flow</p>
+          <pre class="mermaid">
+flowchart LR
+    A["Create Receipt<br/>supplier + line items"] --> B["Status: Waiting"]
+    B --> C{"User clicks Validate"}
+    C --> D["completeReceipt(state, receipt, user)"]
+    D --> E["changeInv(+quantity)<br/>at destination location, per line"]
+    D --> F["Ledger entry per line<br/>operation = Receipt"]
+    D --> G["receipt.status = Done"]
+          </pre>
+        </div>
+
+        <h3 id="op-delivery">8.3 Deliveries — Outgoing Stock</h3>
+        <div class="diagram">
+          <p class="dtitle">Figure 8.3 — Delivery Validation Flow</p>
+          <pre class="mermaid">
+flowchart LR
+    A["Create Delivery<br/>customer + line items"] --> B["Status: Waiting / Ready"]
+    B --> C{"User clicks Validate"}
+    C --> D{"Stock at source ≥ line quantity?"}
+    D -- No --> E["throw Error('Insufficient stock')"]
+    D -- Yes --> F["completeDelivery(state, delivery, user)"]
+    F --> G["changeInv(−quantity)<br/>at source location, per line"]
+    F --> H["Ledger entry per line<br/>operation = Delivery, quantity negative"]
+    F --> I["delivery.status = Done"]
+          </pre>
+        </div>
+        <div class="callout danger">
+          <span class="co-label">Guard rail</span>
+          <code>completeDelivery</code> throws before mutating state if the source location does not hold enough of the product — deliveries can never push a location's quantity negative.
+        </div>
+
+        <h3 id="op-transfer">8.4 Internal Transfers — Stock Relocation</h3>
+        <div class="diagram">
+          <p class="dtitle">Figure 8.4 — Transfer Validation Flow</p>
+          <pre class="mermaid">
+flowchart LR
+    A["Create Transfer<br/>product, quantity, source, destination"] --> B["Status: Waiting"]
+    B --> C{"Validate"}
+    C --> D{"Stock at source ≥ quantity?"}
+    D -- No --> E["throw Error('Insufficient stock')"]
+    D -- Yes --> F["completeTransfer(state, transfer, user)"]
+    F --> G["changeInv(−quantity) at source"]
+    F --> H["changeInv(+quantity) at destination"]
+    F --> I["Two ledger entries written:<br/>one outbound, one inbound"]
+    F --> J["transfer.status = Done"]
+          </pre>
+        </div>
+        <p>Because a transfer never changes <i>total</i> stock of a product across the business, it is deliberately logged as a matched pair of ledger entries rather than a single net-zero one — preserving a full location-to-location audit trail.</p>
+
+        <h3 id="op-adjustment">8.5 Adjustments — Physical Count Reconciliation</h3>
+        <div class="diagram">
+          <p class="dtitle">Figure 8.5 — Adjustment Validation Flow</p>
+          <pre class="mermaid">
+flowchart LR
+    A["Create Adjustment<br/>recorded qty, counted qty, reason"] --> B["Status: Waiting"]
+    B --> C{"User clicks Apply"}
+    C --> D["completeAdjustment(state, adjustment, user)"]
+    D --> E["diff = counted − recorded"]
+    E --> F["changeInv(diff) at location"]
+    F --> G["Ledger entry<br/>operation = Adjustment, quantity = diff"]
+    G --> H["adjustment.status = Done"]
+          </pre>
+        </div>
+      </section>
+
+      <!-- 9. STATE MANAGEMENT -->
+      <section class="doc-section" id="state">
+        <p class="sec-eyebrow">Section 09</p>
+        <h2>State Management &amp; Realtime Sync</h2>
+        <p class="sec-intro">StockSense layers a fast local cache underneath a slower, authoritative cloud store, reconciled automatically through effects in <code>App.tsx</code>.</p>
+
+        <h3>9.1 Local Persistence</h3>
+        <p><code>src/lib/store.ts</code> seeds a demo dataset (<code>seed()</code>) and persists <code>AppState</code> to <code>localStorage</code> under a per-user key (<code>stocksense_state_v2_&lt;userId&gt;</code>), so the UI has something to render instantly before any network round trip resolves.</p>
+
+        <h3>9.2 Cloud Read / Write</h3>
+        <p><code>src/lib/cloudStore.ts</code> wraps four Supabase interactions: fetching the shared state row, upserting it, subscribing to Postgres change events on <code>app_states</code>, and fetching/updating a user's private <code>profiles</code> row.</p>
+
+        <div class="diagram">
+          <p class="dtitle">Figure 9.1 — Local Save &amp; Debounced Cloud Push</p>
+          <pre class="mermaid">
+flowchart TD
+    A["AppState changes (any action)"] --> B["save(state, userId) → localStorage"]
+    B --> C{"skipNextCloudPush flag set?"}
+    C -- "true (state came from cloud/realtime)" --> D["Clear flag — do not re-push"]
+    C -- false --> E{"authed AND Supabase configured AND cloudReady?"}
+    E -- No --> F["No cloud push"]
+    E -- Yes --> G["Debounce 250ms"]
+    G --> H["pushCloudState(state, userId)<br/>upsert app_states id='default'"]
+          </pre>
+        </div>
+
+        <div class="diagram">
+          <p class="dtitle">Figure 9.2 — Multi-User Realtime Propagation</p>
+          <pre class="mermaid">
+sequenceDiagram
+    participant A as User A (browser)
+    participant DB as Supabase Postgres
+    participant RT as Realtime Channel
+    participant B as User B (browser)
+    A->>DB: upsert app_states (id='default', state)
+    DB-->>RT: postgres_changes event (UPDATE)
+    RT-->>A: broadcast (skipped — A is the author)
+    RT-->>B: broadcast change
+    B->>B: skipNextCloudPush = true; setState(next)
+    B->>B: UI re-renders with A's changes, no re-push loop
+          </pre>
+        </div>
+
+        <div class="callout">
+          <span class="co-label">Why the skip flag exists</span>
+          Without <code>skipNextCloudPush</code>, receiving a remote update would trigger the local save effect, which would immediately re-push the same state back to Supabase — creating a redundant write (and, with two active clients, a feedback loop).
+        </div>
+      </section>
+
+      <!-- 10. DATABASE -->
+      <section class="doc-section" id="database">
+        <p class="sec-eyebrow">Section 10</p>
+        <h2>Database Schema &amp; Row-Level Security</h2>
+        <p class="sec-intro">The full schema lives in <code>supabase/schema.sql</code> and is idempotent — it can be re-run safely against an existing project.</p>
+
+        <h3>10.1 Tables</h3>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Table</th><th>Key columns</th><th>Purpose</th></tr>
+            <tr><td><code>public.profiles</code></td><td><code>id (PK, FK→auth.users)</code>, full_name, email, avatar_url, phone, role, updated_at</td><td>One private row per user, auto-created by trigger on sign-up</td></tr>
+            <tr><td><code>public.app_states</code></td><td><code>id (PK, text)</code>, user_id, state (jsonb), updated_at, updated_by</td><td>Shared inventory workspace; production traffic uses exactly one row, <code>id='default'</code></td></tr>
+          </table>
+        </div>
+
+        <h3>10.2 Row-Level Security Policies</h3>
+        <div class="tbl-wrap">
+          <table>
+            <tr><th>Table</th><th>Policy</th><th>Rule</th></tr>
+            <tr><td>profiles</td><td>read own</td><td><code>auth.uid() = id</code></td></tr>
+            <tr><td>profiles</td><td>insert own</td><td><code>auth.uid() = id</code></td></tr>
+            <tr><td>profiles</td><td>update own</td><td><code>auth.uid() = id</code></td></tr>
+            <tr><td>app_states</td><td>read shared row</td><td><code>id = 'default'</code>, any authenticated user</td></tr>
+            <tr><td>app_states</td><td>insert shared row</td><td><code>id = 'default'</code>, any authenticated user</td></tr>
+            <tr><td>app_states</td><td>update shared row</td><td><code>id = 'default'</code>, any authenticated user</td></tr>
+          </table>
+        </div>
+
+        <h3>10.3 Automation</h3>
+        <ul>
+          <li><b>Trigger <code>on_auth_user_created</code></b> calls <code>handle_new_user()</code> after every insert into <code>auth.users</code>, upserting a matching <code>profiles</code> row (preserving any already-set <code>full_name</code>).</li>
+          <li><b>Realtime publication</b>: the script adds <code>app_states</code> and <code>profiles</code> to the <code>supabase_realtime</code> publication if not already present, so client subscriptions can receive change events.</li>
+          <li><b>Legacy row migration</b>: the script clears <code>user_id</code> on the <code>id='default'</code> row so pre-existing per-user policies don't block shared access after an upgrade.</li>
+        </ul>
+
+        <div class="callout danger">
+          <span class="co-label">Security note</span>
+          The published RLS model treats the workspace as fully shared and mutually trusted: any authenticated user can read and write the entire inventory. There is currently no per-user write scoping, role gating, or field-level permission inside <code>app_states</code> — this is a single shared team workspace by design, not a multi-tenant system.
+        </div>
+      </section>
+
+      <!-- 11. DEPLOYMENT -->
+      <section class="doc-section" id="deployment">
+        <p class="sec-eyebrow">Section 11</p>
+        <h2>Setup &amp; Deployment Guide</h2>
+
+        <h3>11.1 Provision Supabase</h3>
+        <ol>
+          <li>Create (or open) a Supabase project.</li>
+          <li>Open <b>SQL Editor</b>, paste the full contents of <code>supabase/schema.sql</code>, and run it once.</li>
+          <li>Under <b>Authentication → URL Configuration</b>, add every origin the app will run from (local dev and each production domain).</li>
+        </ol>
+
+        <h3>11.2 Local Development</h3>
+        <p>Create a <code>.env</code> file beside <code>package.json</code>:</p>
+        <pre><code>VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY</code></pre>
+        <pre><code>npm install
+npm run dev</code></pre>
+        <div class="callout warn">
+          <span class="co-label">Never do this</span>
+          Never place the Supabase <code>service_role</code>/secret key in <code>.env</code> or in any frontend build — it bypasses Row-Level Security entirely. Only the publishable/anon key belongs in a Vite <code>VITE_*</code> variable.
+        </div>
+
+        <h3>11.3 Production (Vercel / Netlify)</h3>
+        <ul>
+          <li>Add <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> as environment variables on the hosting project.</li>
+          <li>Vite injects <code>VITE_*</code> variables at <b>build</b> time — changing them requires a fresh build and redeploy, not just a restart.</li>
+          <li>Build command: <code>tsc -b && vite build</code> (defined in <code>package.json</code>).</li>
+        </ul>
+
+        <h3>11.4 Troubleshooting: "Supabase is not configured"</h3>
+        <ul>
+          <li>Confirm <code>.env</code> sits directly beside <code>package.json</code>.</li>
+          <li>Confirm both variable names begin with <code>VITE_</code> exactly.</li>
+          <li>Restart the Vite dev server after any <code>.env</code> edit.</li>
+          <li>For a deployed build, confirm the hosting provider's environment variables are set and trigger a redeploy.</li>
+        </ul>
+      </section>
+
+      <!-- 12. SECURITY -->
+      <section class="doc-section" id="security">
+        <p class="sec-eyebrow">Section 12</p>
+        <h2>Security Considerations</h2>
+        <div class="two-col">
+          <div class="callout">
+            <span class="co-label">Enforced today</span>
+            <ul style="margin:6px 0 0;">
+              <li>Real Supabase Auth — no demo/local bypass</li>
+              <li>Profiles isolated per user via RLS</li>
+              <li>Only the anon/publishable key ships to the browser</li>
+              <li>Delivery/Transfer validation blocks negative stock</li>
+              <li>Ledger entries are append-only from application code</li>
+            </ul>
+          </div>
+          <div class="callout warn">
+            <span class="co-label">Worth revisiting</span>
+            <ul style="margin:6px 0 0;">
+              <li>Any authenticated user can write the entire shared workspace — no per-role permissions</li>
+              <li>No server-side validation layer independent of the client (all business rules run in the browser)</li>
+              <li>No optimistic-concurrency / conflict resolution beyond last-write-wins on <code>app_states</code></li>
+              <li>Ledger writes are not protected by a database-level trigger, only by application convention</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 13. ROADMAP -->
+      <section class="doc-section" id="roadmap">
+        <p class="sec-eyebrow">Section 13</p>
+        <h2>Known Limitations &amp; Roadmap Candidates</h2>
+        <ul>
+          <li><b>Single shared workspace only</b> — multi-team/multi-tenant support would require a workspace ID model instead of a hardcoded <code>'default'</code> row.</li>
+          <li><b>Draft/Canceled states unreachable from the UI</b> — the type system supports them but no action currently transitions a document into either.</li>
+          <li><b>No role-based access control</b> — the <code>role</code> field on <code>Profile</code> is descriptive only; it does not currently gate any action.</li>
+          <li><b>No server-side business-rule enforcement</b> — a malicious client with valid auth could bypass client-side stock checks by writing directly to <code>app_states</code> (mitigated only by trusting the workspace's members).</li>
+          <li><b>Add/Edit forms for Warehouses and Locations are minimal</b> — no validation beyond required text fields.</li>
+        </ul>
+      </section>
+
+      <footer>
+        <p>StockSense Technical Documentation — generated from the project source. Reflects the codebase as of the current build.</p>
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad:true,
+    theme:'base',
+    securityLevel:'loose',
+    fontFamily:'Inter, sans-serif',
+    themeVariables:{
+      primaryColor:'#f0f2f8',
+      primaryTextColor:'#161a2b',
+      primaryBorderColor:'#d6188f',
+      lineColor:'#8891a5',
+      secondaryColor:'#eef0f7',
+      tertiaryColor:'#ffffff',
+      fontSize:'13px'
+    }
+  });
+</script>
+
+<!--claude-mermaid-runtime-begin:3477-->
+<style>.mermaid-diagram{margin-block:4px}.mermaid-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}</style>
+<script src="/_runtime/mermaid-11.16.1.min.js"></script>
+<script>(function(){
+var CFG={"palettes":{"light":{"surface":"#f4efe4","text":"#42392e","line":"#8a7f6d","border":"#7a6c52","bg":"#fffdf8"},"dark":{"surface":"#262b34","text":"#f2f3f5","line":"#a8adb8","border":"#9aa4b8","bg":"#1f232b"}}};
+if(typeof mermaid==='undefined')return;
+var pres=Array.prototype.slice.call(document.querySelectorAll('pre.mermaid')).filter(function(p){if(p.hasAttribute('data-claude-mermaid-claimed'))return false;p.setAttribute('data-claude-mermaid-claimed','1');return true;});
+if(!pres.length)return;
+var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+var root=document.documentElement;
+var items=pres.map(function(pre){
+var mount=document.createElement('div');mount.className='mermaid-diagram';
+return {pre:pre,mount:mount,src:pre.textContent||''};
+});
+var seq=0;
+var renderGen=0;
+var lastKey='';
+function pageBg(fallback){
+var els=[document.body,document.documentElement];
+for(var i=0;i<els.length;i++){
+var c=els[i]&&getComputedStyle(els[i]).backgroundColor;
+if(c&&c!=='transparent'&&c!=='rgba(0, 0, 0, 0)')return c;
+}
+return fallback;
+}
+function render(){
+var theme=root.getAttribute('data-theme');
+var dark=theme==='dark'||(!!(mq&&mq.matches)&&theme!=='light');
+var pal=dark?CFG.palettes.dark:CFG.palettes.light;
+var bg=pageBg(pal.bg);
+var key=(dark?'d':'l')+'|'+bg;
+if(key===lastKey)return;
+lastKey=key;
+var gen=++renderGen;
+var font=getComputedStyle(document.body).fontFamily||'sans-serif';
+var nat={useMaxWidth:false};
+mermaid.initialize({
+startOnLoad:false,securityLevel:'strict',theme:'base',
+flowchart:nat,sequence:nat,er:nat,state:nat,class:nat,pie:nat,
+gantt:nat,journey:nat,timeline:nat,gitGraph:nat,mindmap:nat,xyChart:nat,
+quadrantChart:nat,sankey:nat,c4:nat,requirement:nat,block:nat,
+packet:nat,kanban:nat,architecture:nat,radar:nat,
+themeVariables:{background:bg,mainBkg:pal.surface,primaryColor:pal.surface,
+primaryTextColor:pal.text,lineColor:pal.line,primaryBorderColor:pal.border,
+nodeBorder:pal.border,clusterBorder:pal.border,edgeLabelBackground:bg,
+clusterBkg:'rgba(127,127,127,0.07)',titleColor:pal.text,
+darkMode:dark,rowOdd:bg,rowEven:'rgba(127,127,127,0.07)',
+attributeBackgroundColorOdd:bg,attributeBackgroundColorEven:'rgba(127,127,127,0.07)',
+fontSize:'16px',fontFamily:font},
+themeCSS:'.node rect, .node circle, .node polygon, .node path, .cluster rect { stroke-width: 2px; }'
+});
+items.forEach(function(it){
+var id='claude-mermaid-'+seq++;
+mermaid.render(id,it.src).then(function(r){
+if(gen!==renderGen)return;
+var prev=it.pre.previousElementSibling;
+if(prev&&prev.className==='mermaid-diagram'&&prev!==it.mount)return;
+it.mount.innerHTML=r.svg;
+if(!it.mount.parentNode)it.pre.parentNode.insertBefore(it.mount,it.pre);
+it.pre.style.display='none';
+},function(){
+var scratch=document.getElementById(id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+scratch=document.getElementById('d'+id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+if(gen!==renderGen)return;
+if(it.mount.parentNode)it.mount.parentNode.removeChild(it.mount);
+it.pre.style.display='';
+});
+});
+}
+render();
+if(mq&&mq.addEventListener)mq.addEventListener('change',render);
+if(typeof MutationObserver!=='undefined')new MutationObserver(render).observe(root,{attributes:true,attributeFilter:['data-theme']});
+})();</script>
+<!--claude-mermaid-runtime-end-->
+</body>
+</html>
