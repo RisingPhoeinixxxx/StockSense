@@ -343,12 +343,20 @@ The complete technical documentation — system architecture, entity-relationshi
 
 ### 👉 **[stocksense-docs — live documentation site](https://claude.ai/artifact/TEj1niNTXq1i8XV6ZjibMa)**
 
-<br/>
+---
 
 ## 📄 License
 
-MIT — built for **[Hackathon Name]** 2026.
+> **License Notice:** StockSense is provided by **C L Vinaya and Amrutha Varshni G R** for educational, academic, demonstration, portfolio, and viewing purposes only. Redistribution, commercial use, or publication of modified versions is not permitted without prior written permission.
+
+See the [LICENSE](LICENSE) file for complete terms.
+
+---
 
 <div align="center">
-<sub>Built with React, Vite, TypeScript, and Supabase.</sub>
+
+**Built with React, TypeScript, Supabase, and a lot of debugging.**
+
+© 2026 C L Vinaya & Amrutha Varshni G R
+
 </div>
