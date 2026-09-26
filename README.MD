@@ -335,14 +335,6 @@ This is a deliberate design boundary for a single-team workspace, not an oversig
 - [ ] CSV import/export for bulk product catalogues
 - [ ] Barcode / SKU scanning on mobile
 
-<br/>
-
-## 📖 Full Documentation
-
-The complete technical documentation — system architecture, entity-relationship diagram, authentication sequence, per-operation flowcharts (Receipts / Deliveries / Transfers / Adjustments), the full database schema with RLS policy tables, and the deployment guide — is published here:
-
-### 👉 **[stocksense-docs — live documentation site](https://claude.ai/artifact/TEj1niNTXq1i8XV6ZjibMa)**
-
 ---
 
 ## 📄 License
